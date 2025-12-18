@@ -1,0 +1,73 @@
+{% extends "soporte/base_soporte.html" %}
+{% block title %}Panel de Soporte{% endblock %}
+{% block nav_panel_active %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">🎫 Panel de Tickets</h2>
+    <span class="badge bg-primary fs-6">{{ tickets.count }} Tickets</span>
+</div>
+
+<div class="card border-0">
+    <div class="card-body p-0">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr class="text-uppercase small text-muted">
+                    <th>#</th>
+                    <th>Asunto</th>
+                    <th>Comerciante</th>
+                    <th>Estado</th>
+                    <th>Prioridad</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.id }}</td>
+                    <td class="fw-medium">{{ ticket.asunto }}</td>
+                    <td>{{ ticket.comerciante.nombre_apellido }}</td>
+
+                    <td>
+                        <span class="badge bg-{% if ticket.estado == 'ABIERTO' %}primary{% elif ticket.estado == 'CERRADO' %}secondary{% else %}warning text-dark{% endif %}">
+                            {{ ticket.estado|title }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="badge bg-{% if ticket.prioridad == 'CRITICA' %}danger{% elif ticket.prioridad == 'ALTA' %}warning text-dark{% else %}info text-dark{% endif %}">
+                            {{ ticket.prioridad|title }}
+                        </span>
+                    </td>
+
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'soporte:ticket_detalle' ticket.id %}"
+                               class="btn btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+
+                            {% if ticket.estado != 'CERRADO' %}
+                            <form method="post" action="{% url 'soporte:cerrar_ticket' ticket.id %}">
+                                {% csrf_token %}
+                                <button class="btn btn-outline-danger"
+                                        onclick="return confirm('¿Cerrar ticket?');">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        No hay tickets registrados
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

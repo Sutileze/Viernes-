@@ -1,0 +1,64 @@
+{% extends "soporte/base_soporte.html" %}
+
+{% block title %}Detalle Ticket #{{ ticket.id }}{% endblock %}
+{% block nav_panel_active %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="h4 mb-1">Ticket #{{ ticket.id }} - {{ ticket.asunto }}</h2>
+        <p class="text-muted mb-0">
+            Creado por {{ ticket.comerciante.nombre_apellido }} ({{ ticket.comerciante.email }})
+        </p>
+    </div>
+    <div>
+        {% if ticket.estado != 'CERRADO' %}
+        <form method="post" action="{% url 'soporte:cerrar_ticket' ticket.id %}" class="d-inline">
+            {% csrf_token %}
+            <button class="btn btn-outline-danger btn-sm"
+                    onclick="return confirm('¿Cerrar este ticket?');">
+                <i class="bi bi-x-circle"></i> Cerrar
+            </button>
+        </form>
+        {% endif %}
+        <a href="{% url 'soporte:panel_soporte' %}" class="btn btn-secondary btn-sm ms-1">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-body">
+        <p><strong>Estado:</strong> {{ ticket.estado }}</p>
+        <p><strong>Prioridad:</strong> {{ ticket.prioridad }}</p>
+        <p><strong>Descripción:</strong><br>{{ ticket.descripcion|linebreaks }}</p>
+    </div>
+</div>
+
+{% if ticket.estado != 'CERRADO' %}
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <h5 class="card-title mb-3">Actualizar estado</h5>
+
+        <form method="post" action="{% url 'soporte:ticket_accion' ticket.id %}">
+            {% csrf_token %}
+            <div class="btn-group">
+                {% if ticket.estado != 'EN_PROCESO' %}
+                <button name="accion" value="tomar" class="btn btn-outline-primary btn-sm">
+                    En proceso
+                </button>
+                {% endif %}
+                {% if ticket.estado != 'RESUELTO' %}
+                <button name="accion" value="resolver" class="btn btn-outline-success btn-sm">
+                    Resuelto
+                </button>
+                {% endif %}
+                <button name="accion" value="cerrar" class="btn btn-outline-secondary btn-sm">
+                    Cerrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

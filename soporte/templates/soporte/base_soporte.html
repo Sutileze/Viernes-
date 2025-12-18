@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Soporte Técnico{% endblock %}</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+:root {
+    --primary: #0d6efd;
+    --primary-soft: #e7f0ff;
+    --bg-main: #f4f6f9;
+    --bg-sidebar: #ffffff;
+    --radius: .75rem;
+    --shadow-sm: 0 2px 10px rgba(0,0,0,.05);
+}
+
+body {
+    background-color: var(--bg-main);
+    font-size: .95rem;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 230px;
+    min-height: 100vh;
+    background: var(--bg-sidebar);
+    box-shadow: var(--shadow-sm);
+    padding: 1rem;
+}
+
+.sidebar h5 {
+    font-weight: 600;
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .55rem .75rem;
+    margin-bottom: .25rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: #212529;
+}
+
+.sidebar a:hover {
+    background: var(--primary-soft);
+    color: var(--primary);
+}
+
+.sidebar a.active {
+    background: var(--primary);
+    color: #fff;
+    font-weight: 500;
+}
+
+/* Content */
+.content-wrapper {
+    padding: 2rem;
+    width: 100%;
+}
+
+/* Cards */
+.card {
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+</style>
+</head>
+
+<body>
+<div class="d-flex">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <h5 class="text-center mb-4">🛠 Soporte</h5>
+
+        <a href="{% url 'soporte:panel_soporte' %}"
+           class="{% block nav_panel_active %}{% endblock %}">
+            <i class="bi bi-ticket-detailed"></i> Tickets
+        </a>
+
+        <a href="{% url 'logout' %}" class="text-danger">
+            <i class="bi bi-box-arrow-right"></i> Salir
+        </a>
+    </aside>
+
+    <!-- CONTENT -->
+    <main class="content-wrapper">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
