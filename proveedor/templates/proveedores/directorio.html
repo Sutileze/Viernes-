@@ -1,0 +1,847 @@
+{% extends 'proveedores/base.html' %}
+
+{% block title %}Directorio de Proveedores - Club Almacén{% endblock %}
+
+{% block extra_css %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    /* ==================== HERO SECTION ==================== */
+    .hero-section {
+        background: linear-gradient(135deg, #2752fcff 0%, #ff9c31ff 100%);
+        border-radius: 24px;
+        padding: 4rem 3rem;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 700px;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 900;
+        color: white;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: white;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* ==================== FILTROS MODERNOS ==================== */
+    .filters-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        margin-bottom: 3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .filters-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .filters-header h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    .filters-icon {
+        font-size: 1.5rem;
+    }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .filter-group label {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .filter-group select,
+    .filter-group input {
+        padding: 0.875rem 1rem;
+        border: 2px solid #e8e8e8;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        background-color: #fafafa;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    .filter-group select:focus,
+    .filter-group input:focus {
+        outline: none;
+        border-color: #1e47fffb;
+        background-color: white;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+    }
+
+    .btn {
+        padding: 0.875rem 2rem;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary {
+        background-color: #f5f5f5;
+        color: #666;
+    }
+
+    .btn-secondary:hover {
+        background-color: #e8e8e8;
+        transform: translateY(-2px);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #2752fcff 0%, #ff9c31ff 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    /* ==================== GRID MEJORADO ==================== */
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .results-count {
+        font-size: 1.1rem;
+        color: #666;
+    }
+
+    .results-count strong {
+        color: #1943ffff;
+        font-weight: 700;
+    }
+
+    .proveedores-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    /* ==================== CARDS PREMIUM ==================== */
+    .proveedor-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .proveedor-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .proveedor-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #2752fcff 0%, #ff9c31ff 100%);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .proveedor-card:hover::before {
+        opacity: 1;
+    }
+
+    .proveedor-logo {
+        width: 100%;
+        height: 220px;
+        background: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .proveedor-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .proveedor-card:hover .proveedor-logo img {
+        transform: scale(1.05);
+    }
+
+    .proveedor-logo.default {
+        background: linear-gradient(135deg, #0734ffff 0%, #d6a606ff 100%);
+    }
+
+    .proveedor-logo.default-green {
+        background: linear-gradient(135deg, #115599ff 0%, #c28800ff 100%);
+    }
+
+    .proveedor-logo.default-orange {
+        background: linear-gradient(135deg, #3019feff 0%, #ffad1fd0 100%);
+    }
+
+    .proveedor-logo.default-blue {
+        background: linear-gradient(135deg, #133dfbff 0%, #ff9e20ff 100%);
+    }
+
+    .logo-placeholder {
+        font-size: 4rem;
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+    }
+
+    .badge-verificado {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        color: #28a745;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge-destacado {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ==================== CONTENIDO DE CARDS ==================== */
+    .proveedor-content {
+        padding: 1.75rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .proveedor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .proveedor-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        line-height: 1.3;
+        margin-bottom: 0.5rem;
+    }
+
+    .proveedor-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        color: #ffc107;
+        font-size: 0.9rem;
+    }
+
+    .proveedor-description {
+        font-size: 0.95rem;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .proveedor-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .tag {
+        background: linear-gradient(135deg, #e3f2fd 0%, #f0f7ff 100%);
+        color: #1349faff;
+        padding: 0.4rem 0.9rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: transform 0.2s;
+    }
+
+    .tag:hover {
+        transform: scale(1.05);
+    }
+
+    .proveedor-meta {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.25rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .meta-item .icon {
+        font-size: 1.1rem;
+    }
+
+    .proveedor-footer {
+        margin-top: auto;
+        padding-top: 1.25rem;
+        border-top: 2px solid #f5f5f5;
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-contactar {
+        flex: 1;
+        background: linear-gradient(135deg, #0e3affff 0%, #f5982dff 100%);
+        color: white;
+        padding: 0.875rem 1.5rem;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 700;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-contactar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-favorito {
+        background: white;
+        border: 2px solid #e8e8e8;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-favorito:hover {
+        border-color: #f5576c;
+        color: #f5576c;
+        transform: scale(1.1);
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+        grid-column: 1/-1;
+        text-align: center;
+        padding: 5rem 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .empty-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.5;
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 0.75rem;
+    }
+
+    .empty-text {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 2rem;
+    }
+
+    /* ==================== PAGINACIÓN ==================== */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 3rem;
+    }
+
+    .pagination a,
+    .pagination span {
+        min-width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #666;
+        background: white;
+        border: 2px solid #e8e8e8;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .pagination a:hover {
+        background: linear-gradient(135deg, #0a37ffff 0%, #fba12cff 100%);
+        color: white;
+        border-color: transparent;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .pagination .current {
+        background: linear-gradient(135deg, #fba12cff 0%, #0a37ffff 100%);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1024px) {
+        .proveedores-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 1rem;
+        }
+
+        .hero-section {
+            padding: 2.5rem 2rem;
+        }
+
+        .hero-title {
+            font-size: 2rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1rem;
+        }
+
+        .hero-stats {
+            gap: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 1.75rem;
+        }
+
+        .proveedores-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filters-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .proveedor-footer {
+            flex-direction: column;
+        }
+
+        .btn-favorito {
+            width: 100%;
+        }
+    }
+
+    /* ==================== ANIMACIONES ==================== */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .proveedor-card {
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    .proveedor-card:nth-child(1) { animation-delay: 0.1s; }
+    .proveedor-card:nth-child(2) { animation-delay: 0.2s; }
+    .proveedor-card:nth-child(3) { animation-delay: 0.3s; }
+    .proveedor-card:nth-child(4) { animation-delay: 0.4s; }
+    .proveedor-card:nth-child(5) { animation-delay: 0.5s; }
+    .proveedor-card:nth-child(6) { animation-delay: 0.6s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    
+    <!-- HERO SECTION -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Encuentra el Proveedor Perfecto 🚀</h1>
+            <p class="hero-subtitle">
+                Conecta con los mejores proveedores para hacer crecer tu negocio. 
+                Miles de comerciantes confían en nosotros.
+            </p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number">{{ page_obj.paginator.count }}</div>
+                    <div class="stat-label">Proveedores</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">{{ categorias.count }}+</div>
+                    <div class="stat-label">Categorías</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Verificados</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filters-section">
+        <div class="filters-header">
+            <span class="filters-icon">🔍</span>
+            <h3>Filtrar Proveedores</h3>
+        </div>
+        
+        <form method="get" action="{% url 'proveedores:directorio_proveedores' %}">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label><span>🔎</span> Buscar</label>
+                    <input 
+                        type="text" 
+                        name="q" 
+                        placeholder="Nombre o descripción..." 
+                        value="{{ busqueda|default:'' }}"
+                    >
+                </div>
+
+                <div class="filter-group">
+                    <label><span>📦</span> Categoría</label>
+                    <select name="categoria">
+                        <option value="">Todas las categorías</option>
+                        {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}" 
+                            {% if categoria.id|stringformat:"s" == categoria_seleccionada %}selected{% endif %}>
+                            {{ categoria.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label><span>📍</span> Región</label>
+                    <select name="region">
+                        <option value="">Todas las regiones</option>
+                        {% for codigo, nombre in regiones %}
+                        <option value="{{ codigo }}" 
+                            {% if codigo == region_seleccionada %}selected{% endif %}>
+                            {{ nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label><span>🌍</span> Cobertura</label>
+                    <select name="cobertura">
+                        <option value="">Cualquier cobertura</option>
+                        {% for codigo, nombre in coberturas %}
+                        <option value="{{ codigo }}" 
+                            {% if codigo == cobertura_seleccionada %}selected{% endif %}>
+                            {{ nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <a href="{% url 'proveedores:directorio_proveedores' %}" class="btn btn-secondary">
+                    ✖ Limpiar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    ✓ Aplicar Filtros
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- RESULTADOS -->
+    {% if page_obj %}
+    <div class="results-header">
+        <div class="results-count">
+            Mostrando <strong>{{ page_obj|length }}</strong> de <strong>{{ page_obj.paginator.count }}</strong> proveedores
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- GRID DE PROVEEDORES -->
+    <div class="proveedores-grid">
+        {% for proveedor in page_obj %}
+        <div class="proveedor-card">
+            
+            <!-- Logo/Imagen -->
+            <div class="proveedor-logo {% if not proveedor.foto_perfil %}default{% cycle '' '-green' '-orange' '-blue' %}{% endif %}">
+                {% if proveedor.foto_perfil %}
+                    <img src="{{ proveedor.foto_perfil.url }}?t={% now 'U' %}" alt="{{ proveedor.nombre_empresa }}">
+                {% else %}
+                    <span class="logo-placeholder">🏪</span>
+                {% endif %}
+                
+                {% if proveedor.destacado %}
+                <div class="badge-destacado">
+                    ⭐ Destacado
+                </div>
+                {% endif %}
+                
+                {% if proveedor.verificado %}
+                <div class="badge-verificado">
+                    ✓ Verificado
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Contenido -->
+            <div class="proveedor-content">
+                <div class="proveedor-header">
+                    <h3 class="proveedor-name">{{ proveedor.nombre_empresa }}</h3>
+                </div>
+
+                <p class="proveedor-description">
+                    {{ proveedor.descripcion|truncatewords:25 }}
+                </p>
+
+                <!-- Tags/Categorías -->
+                <div class="proveedor-tags">
+                    {% for categoria in proveedor.categorias.all|slice:":3" %}
+                    <span class="tag">
+                        {{ categoria.nombre }}
+                    </span>
+                    {% endfor %}
+                </div>
+
+                <!-- Meta información -->
+                <div class="proveedor-meta">
+                    <div class="meta-item">
+                        <span class="icon">📍</span>
+                        <span>{{ proveedor.get_region_display_name|default:"Nacional" }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="icon">🌐</span>
+                        <span>{{ proveedor.get_cobertura_display }}</span>
+                    </div>
+                </div>
+
+                <!-- Footer con acciones -->
+                <div class="proveedor-footer">
+                    <a href="{% url 'proveedores:detalle_proveedor' proveedor.id %}" class="btn-contactar">
+                        <span>Ver Perfil</span>
+                        <span>→</span>
+                    </a>
+                    <button class="btn-favorito" title="Guardar en favoritos">
+                        ♥
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        
+        <!-- EMPTY STATE -->
+        <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <h2 class="empty-title">No encontramos proveedores</h2>
+            <p class="empty-text">
+                Intenta ajustar los filtros o buscar con otros términos
+            </p>
+            <a href="{% url 'proveedores:directorio_proveedores' %}" class="btn btn-primary">
+                Ver Todos los Proveedores
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- PAGINACIÓN -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1{% if busqueda %}&q={{ busqueda }}{% endif %}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}">
+            ««
+        </a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}">
+            ‹
+        </a>
+        {% endif %}
+
+        <span class="current">{{ page_obj.number }}</span>
+        <span style="border: none; background: none;">de</span>
+        <span style="border: none; background: none;">{{ page_obj.paginator.num_pages }}</span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}">
+            ›
+        </a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}">
+            »»
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
