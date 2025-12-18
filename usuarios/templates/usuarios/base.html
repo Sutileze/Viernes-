@@ -1,0 +1,168 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{% block title %}Club Almacén{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    
+    <!-- Tailwind Config -->
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#005A9C",
+                "secondary": "#FF9800",
+                "background-light": "#F4F6F8",
+                "background-dark": "#101c22",
+                "text-light": "#333333",
+                "text-dark": "#F4F6F8",
+                "text-muted-light": "#666666",
+                "text-muted-dark": "#a0aec0",
+              },
+              fontFamily: {
+                "display": ["Work Sans", "sans-serif"],
+              },
+              borderRadius: {
+                "DEFAULT": "0.25rem", 
+                "lg": "0.5rem", 
+                "xl": "0.75rem", 
+                "full": "9999px"
+              },
+            },
+          },
+        }
+    </script>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            
+            <!-- HEADER -->
+            <header class="flex items-center justify-between whitespace-nowrap bg-white dark:bg-background-dark border-b border-solid border-gray-200 dark:border-gray-700 px-10 py-3 shadow-sm sticky top-0 z-50">
+                <div class="flex items-center gap-8">
+                    <div class="flex items-center gap-3">
+                        <a href="{% url 'plataforma_comerciante' %}">
+                            <img src="{% static 'img/logoClubAlmacen.png' %}" alt="Club Almacén" class="h-24 w-auto"/>
+                        </a>
+                    </div>
+                    <nav class="hidden md:flex gap-6 text-text-muted-light dark:text-text-muted-dark font-semibold text-sm">
+                        <a href="{% url 'plataforma_comerciante' %}" class="hover:text-primary transition-colors flex items-center gap-1">
+                            <span class="material-symbols-outlined text-base">home</span>
+                            Plataforma
+                        </a>
+                        <a href="{% url 'directorio' %}" class="hover:text-primary transition-colors flex items-center gap-1">
+                            <span class="material-symbols-outlined text-base">store</span>
+                            Directorio
+                        </a>
+                        <a href="{% url 'beneficios' %}" class="hover:text-primary transition-colors flex items-center gap-1">
+                            <span class="material-symbols-outlined text-base">card_giftcard</span>
+                            Beneficios
+                        </a>
+                    </nav>
+                </div>
+                
+                <div class="flex justify-end gap-4 items-center">
+                    {% if current_logged_in_comerciante %}
+                        <!-- Notificaciones -->
+                        <button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-transparent text-text-muted-light dark:text-text-muted-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <span class="material-symbols-outlined text-2xl">notifications</span>
+                        </button>
+                        
+                        <!-- Perfil -->
+                        <a href="{% url 'perfil' %}" class="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" 
+                                style='background-image: url("{{ current_logged_in_comerciante.get_profile_picture_url }}");'>
+                            </div>
+                            <div class="flex flex-col text-left hidden sm:block">
+                                <p class="text-text-light dark:text-text-dark text-sm font-semibold leading-none">
+                                    {{ current_logged_in_comerciante.nombre_apellido|truncatewords:2 }}
+                                </p>
+                                <p class="text-text-muted-light dark:text-text-muted-dark text-xs leading-none mt-1">
+                                    {{ current_logged_in_comerciante.get_rol_display }}
+                                </p>
+                            </div>
+                        </a>
+                        
+                        <!-- Cerrar Sesión -->
+                        <a href="{% url 'logout' %}" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-semibold">
+                            <span class="material-symbols-outlined text-base">logout</span>
+                            <span>Salir</span>
+                        </a>
+                    {% else %}
+                        <!-- No autenticado -->
+                        <a href="{% url 'cuenta' %}" class="px-4 py-2 text-primary font-semibold hover:bg-gray-100 rounded-lg transition-colors">
+                            Iniciar Sesión
+                        </a>
+                        <a href="{% url 'cuenta' %}" class="px-4 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors">
+                            Registrarse
+                        </a>
+                    {% endif %}
+                </div>
+            </header>
+            
+            <!-- MENSAJES FLASH -->
+            {% if messages %}
+            <div class="max-w-screen-xl mx-auto w-full px-6 pt-4">
+                {% for message in messages %}
+                <div class="mb-3 px-4 py-3 rounded-lg flex items-center gap-3 
+                    {% if message.tags == 'success' %}
+                        bg-green-100 text-green-800 border border-green-300
+                    {% elif message.tags == 'error' %}
+                        bg-red-100 text-red-800 border border-red-300
+                    {% elif message.tags == 'warning' %}
+                        bg-yellow-100 text-yellow-800 border border-yellow-300
+                    {% else %}
+                        bg-blue-100 text-blue-800 border border-blue-300
+                    {% endif %}">
+                    
+                    <span class="material-symbols-outlined text-xl">
+                        {% if message.tags == 'success' %}check_circle
+                        {% elif message.tags == 'error' %}error
+                        {% elif message.tags == 'warning' %}warning
+                        {% else %}info{% endif %}
+                    </span>
+                    <span class="flex-1">{{ message }}</span>
+                    <button onclick="this.parentElement.remove()" class="text-current opacity-70 hover:opacity-100">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- CONTENIDO PRINCIPAL -->
+            <main class="flex-1 w-full max-w-screen-xl mx-auto p-6 lg:p-8">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+        
+        <!-- FOOTER -->
+        <footer class="text-center text-sm text-text-muted-light dark:text-text-muted-dark border-t border-gray-200 dark:border-gray-700 py-6 mt-10 bg-white dark:bg-background-dark">
+            <div class="container mx-auto">
+                <p class="mb-2">
+                    <a href="#" class="hover:text-primary transition-colors">Soporte</a>
+                    <span class="mx-2">|</span>
+                    <a href="#" class="hover:text-primary transition-colors">Preguntas Frecuentes</a>
+                    <span class="mx-2">|</span>
+                    <a href="#" class="hover:text-primary transition-colors">Términos de Servicio</a>
+                </p>
+                <p class="text-xs opacity-75">© {% now "Y" %} Club Almacén - Todos los derechos reservados</p>
+            </div>
+        </footer>
+    </div>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

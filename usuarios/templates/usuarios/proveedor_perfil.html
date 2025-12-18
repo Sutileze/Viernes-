@@ -1,0 +1,389 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{{ proveedor.nombre_empresa }} - Club Almacén</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#005A9C",
+                        secondary: "#FF9800",
+                    },
+                    fontFamily: {
+                        sans: ["Work Sans", "sans-serif"],
+                    },
+                },
+            },
+        }
+    </script>
+    
+    <!-- Custom Styles -->
+    <style>
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans">
+    
+    <!-- ==================== HEADER ==================== -->
+    <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <img src="{% static 'img/logoClubAlmacen.png' %}" alt="Club Almacén" class="h-16"/>
+            
+            <a href="{% url 'directorio' %}" class="flex items-center gap-2 text-gray-600 hover:text-primary transition-colors font-semibold">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span class="hidden sm:inline">Volver al Directorio</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="max-w-6xl mx-auto px-6 py-8">
+        
+        <!-- ==================== PERFIL DEL PROVEEDOR ==================== -->
+        <section class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8 animate-fade-in">
+            
+            <!-- Header con Avatar y Info Principal -->
+            <div class="flex flex-col lg:flex-row gap-6 pb-6 border-b border-gray-200">
+                
+                <!-- Avatar -->
+                <div class="flex-shrink-0 mx-auto lg:mx-0">
+                    <div class="relative">
+                        <div class="w-32 h-32 rounded-2xl border-4 border-primary shadow-xl bg-cover bg-center overflow-hidden" 
+                             style="background-image: url('{% if proveedor.foto_perfil %}{{ proveedor.foto_perfil.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}');">
+                        </div>
+                        {% if proveedor.verificado %}
+                        <div class="absolute -bottom-2 -right-2 bg-green-500 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
+                            <span class="material-symbols-outlined text-lg">verified</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Info Principal -->
+                <div class="flex-1 text-center lg:text-left">
+                    <div class="flex flex-col lg:flex-row lg:items-center gap-3 mb-3">
+                        <h1 class="text-3xl lg:text-4xl font-black text-gray-900">
+                            {{ proveedor.nombre_empresa }}
+                        </h1>
+                        {% if proveedor.destacado %}
+                        <span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-bold w-fit mx-auto lg:mx-0">
+                            <span class="material-symbols-outlined text-base">star</span>
+                            Destacado
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="text-gray-600 mb-4">
+                        Miembro desde {{ proveedor.fecha_registro|date:"d M Y" }}
+                    </p>
+                    
+                    <!-- Categorías -->
+                    {% if proveedor.categorias.all %}
+                    <div class="flex flex-wrap gap-2 justify-center lg:justify-start mb-4">
+                        {% for categoria in proveedor.categorias.all %}
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">
+                            {{ categoria.nombre }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Stats -->
+                <div class="flex-shrink-0 mx-auto lg:mx-0">
+                    <div class="grid grid-cols-1 gap-3">
+                        <!-- Visitas -->
+                        <div class="bg-primary/5 rounded-xl border border-primary/20 px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary text-4xl">visibility</span>
+                                <div>
+                                    <div class="text-3xl font-black text-primary">{{ proveedor.visitas|default:0 }}</div>
+                                    <div class="text-xs text-gray-600 uppercase tracking-wide">Visitas</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Última Conexión -->
+                        {% if proveedor.ultima_conexion %}
+                        <div class="bg-green-50 rounded-xl border border-green-200 px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-green-600 text-4xl">schedule</span>
+                                <div>
+                                    <div class="text-sm font-bold text-green-800">{{ proveedor.ultima_conexion|date:"d/m/Y" }}</div>
+                                    <div class="text-xs text-green-700">{{ proveedor.ultima_conexion|date:"H:i" }}</div>
+                                    <div class="text-xs text-gray-600 uppercase tracking-wide mt-1">Última conexión</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Descripción -->
+            {% if proveedor.descripcion %}
+            <div class="py-6 border-b border-gray-200">
+                <h2 class="flex items-center gap-2 text-xl font-bold text-primary mb-3">
+                    <span class="material-symbols-outlined">info</span>
+                    Acerca de Nosotros
+                </h2>
+                <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+                    {{ proveedor.descripcion }}
+                </p>
+            </div>
+            {% endif %}
+
+            <!-- Ubicación y Cobertura -->
+            <div class="grid md:grid-cols-2 gap-8 pt-6">
+                
+                <!-- Ubicación -->
+                <div>
+                    <h3 class="flex items-center gap-2 text-lg font-bold text-primary mb-4">
+                        <span class="material-symbols-outlined">location_on</span>
+                        Ubicación
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3">
+                            <span class="text-gray-600 font-semibold min-w-[80px]">Región:</span>
+                            <span class="text-gray-900 font-medium">{{ proveedor.region }}</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="text-gray-600 font-semibold min-w-[80px]">Comuna:</span>
+                            <span class="text-gray-900 font-medium">{{ proveedor.comuna }}</span>
+                        </div>
+                        {% if proveedor.direccion %}
+                        <div class="flex items-start gap-3">
+                            <span class="text-gray-600 font-semibold min-w-[80px]">Dirección:</span>
+                            <span class="text-gray-900 font-medium">{{ proveedor.direccion }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Cobertura -->
+                <div>
+                    <h3 class="flex items-center gap-2 text-lg font-bold text-primary mb-4">
+                        <span class="material-symbols-outlined">public</span>
+                        Cobertura de Servicios
+                    </h3>
+                    <div class="flex items-center gap-3">
+                        <span class="text-gray-600 font-semibold">Alcance:</span>
+                        <span class="text-gray-900 font-medium">{{ proveedor.get_cobertura_display }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== BOTONES DE CONTACTO ==================== -->
+        <section class="bg-gradient-to-r from-primary/10 via-blue-50 to-blue-100 rounded-2xl shadow-lg border border-primary/30 p-8 mb-8 animate-fade-in">
+            <h2 class="flex items-center justify-center gap-3 text-2xl font-black text-primary mb-6">
+                <span class="material-symbols-outlined text-4xl">contact_phone</span>
+                Contactar al Proveedor
+            </h2>
+            
+            <div class="flex flex-wrap justify-center gap-4">
+                {% if proveedor.whatsapp %}
+                <a href="https://wa.me/{{ proveedor.whatsapp }}" target="_blank"
+                   class="flex items-center gap-3 px-6 py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all card-hover">
+                    <span class="material-symbols-outlined text-3xl">chat</span>
+                    <div class="text-left">
+                        <div class="text-xs opacity-90 uppercase tracking-wide">WhatsApp</div>
+                        <div class="text-lg">{{ proveedor.whatsapp }}</div>
+                    </div>
+                </a>
+                {% endif %}
+                
+                {% if proveedor.telefono %}
+                <a href="tel:{{ proveedor.telefono }}"
+                   class="flex items-center gap-3 px-6 py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all card-hover">
+                    <span class="material-symbols-outlined text-3xl">call</span>
+                    <div class="text-left">
+                        <div class="text-xs opacity-90 uppercase tracking-wide">Teléfono</div>
+                        <div class="text-lg">{{ proveedor.telefono }}</div>
+                    </div>
+                </a>
+                {% endif %}
+                
+                {% if proveedor.sitio_web %}
+                <a href="{{ proveedor.sitio_web }}" target="_blank"
+                   class="flex items-center gap-3 px-6 py-4 bg-gray-800 hover:bg-gray-900 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all card-hover">
+                    <span class="material-symbols-outlined text-3xl">language</span>
+                    <div class="text-left">
+                        <div class="text-xs opacity-90 uppercase tracking-wide">Sitio Web</div>
+                        <div class="text-base">Visitar sitio</div>
+                    </div>
+                </a>
+                {% endif %}
+            </div>
+        </section>
+        
+        <!-- ==================== PRODUCTOS Y SERVICIOS ==================== -->
+        <section class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8 animate-fade-in">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="flex items-center gap-3 text-2xl font-black text-gray-900">
+                    <span class="material-symbols-outlined text-primary text-4xl">inventory_2</span>
+                    Productos y Servicios
+                </h2>
+                <span class="bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-bold">
+                    {{ productos.count }} disponibles
+                </span>
+            </div>
+            
+            {% if productos %}
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for producto in productos %}
+                <div class="bg-gray-50 rounded-xl overflow-hidden border border-gray-200 shadow-sm card-hover">
+                    <!-- Imagen -->
+                    {% if producto.imagen %}
+                    <div class="h-48 bg-cover bg-center" style="background-image: url('{{ producto.imagen.url }}');"></div>
+                    {% else %}
+                    <div class="h-48 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                        <span class="text-6xl">📦</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Contenido -->
+                    <div class="p-5">
+                        {% if producto.destacado %}
+                        <span class="inline-block bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-bold mb-2">
+                            ⭐ Destacado
+                        </span>
+                        {% endif %}
+                        
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">{{ producto.nombre }}</h3>
+                        <p class="text-sm text-gray-600 mb-4 line-clamp-2">
+                            {{ producto.descripcion|truncatewords:15 }}
+                        </p>
+                        
+                        {% if producto.precio %}
+                        <div class="text-2xl font-black text-primary">
+                            ${{ producto.precio|floatformat:0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-16 text-gray-500">
+                <span class="material-symbols-outlined text-6xl mb-4 opacity-30 block">inbox</span>
+                <p class="text-lg">Este proveedor aún no ha publicado productos</p>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- ==================== PROMOCIONES VIGENTES ==================== -->
+        <section class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8 animate-fade-in">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="flex items-center gap-3 text-2xl font-black text-gray-900">
+                    <span class="material-symbols-outlined text-secondary text-4xl">local_offer</span>
+                    Promociones Vigentes
+                </h2>
+                <span class="bg-secondary/10 text-secondary px-4 py-2 rounded-full text-sm font-bold">
+                    {{ promociones.count }} activas
+                </span>
+            </div>
+            
+            {% if promociones %}
+            <div class="grid md:grid-cols-2 gap-6">
+                {% for promocion in promociones %}
+                <div class="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl border-2 border-orange-200 p-6 card-hover">
+                    
+                    <!-- Imagen (opcional) -->
+                    {% if promocion.imagen %}
+                    <div class="mb-4 rounded-lg overflow-hidden shadow-md">
+                        <img src="{{ promocion.imagen.url }}" alt="{{ promocion.titulo }}" class="w-full h-48 object-cover">
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Contenido -->
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-black text-gray-900 mb-2">{{ promocion.titulo }}</h3>
+                            <p class="text-sm text-gray-700 leading-relaxed">
+                                {{ promocion.descripcion|truncatewords:30 }}
+                            </p>
+                        </div>
+                        <div class="flex-shrink-0 ml-4">
+                            <div class="w-16 h-16 bg-secondary rounded-full flex items-center justify-center text-3xl shadow-lg">
+                                🎁
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fechas -->
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 bg-white/60 rounded-lg px-4 py-2">
+                            <span class="material-symbols-outlined text-green-600 text-lg">event_available</span>
+                            <span class="text-sm text-green-700 font-semibold">
+                                Desde {{ promocion.fecha_inicio|date:"d/m/Y" }}
+                            </span>
+                        </div>
+                        
+                        <div class="flex items-center gap-2 bg-white/60 rounded-lg px-4 py-2">
+                            <span class="material-symbols-outlined text-orange-600 text-lg">schedule</span>
+                            <span class="text-sm text-orange-700 font-semibold">
+                                Hasta {{ promocion.fecha_fin|date:"d/m/Y" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-16 text-gray-500">
+                <span class="material-symbols-outlined text-6xl mb-4 opacity-30 block">local_offer</span>
+                <p class="text-lg">No hay promociones vigentes en este momento</p>
+            </div>
+            {% endif %}
+        </section>
+        
+        <!-- ==================== BOTÓN VOLVER ==================== -->
+        <div class="text-center py-8">
+            <a href="{% url 'directorio' %}" 
+               class="inline-flex items-center gap-2 px-8 py-4 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-xl font-bold transition-all shadow-md hover:shadow-lg">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span>Volver al Directorio</span>
+            </a>
+        </div>
+        
+    </main>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="bg-white border-t border-gray-200 py-6 text-center text-xs text-gray-600">
+        <p>© 2025 Club Almacén - Todos los derechos reservados</p>
+        <p class="mt-2">Soporte | Preguntas Frecuentes | Términos de Servicio</p>
+    </footer>
+
+</body>
+</html>

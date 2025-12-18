@@ -1,0 +1,192 @@
+{% load static %}
+{% load my_custom_filters %} 
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Beneficios - Club Almacén</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#005A9C",
+                "secondary": "#FF9800",
+                "background-light": "#F4F6F8",
+                "background-dark": "#101c22",
+                "text-light": "#333333",
+                "text-dark": "#F4F6F8",
+                "text-muted-light": "#666666",
+                "text-muted-dark": "#a0aec0",
+              },
+              fontFamily: {
+                "display": ["Work Sans", "sans-serif"],
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+
+    <style>
+        .placeholder-icon-benefit {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            font-size: 4rem;
+            color: rgba(0, 90, 156, 0.7);
+        }
+        .bg-placeholder-CAPACITACION { background-color: #E6F3FF; }
+        .bg-placeholder-DESCUENTO { background-color: #FFF8E6; }
+        .bg-placeholder-SORTEO { background-color: #E6FFE6; }
+        .bg-placeholder-EVENTO { background-color: #FFEEEC; }
+        .bg-placeholder-OTROS { background-color: #F8F8F8; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            
+            <!-- HEADER -->
+            <header class="flex items-center justify-between whitespace-nowrap bg-white dark:bg-background-dark border-b border-solid border-gray-200 dark:border-gray-700 px-10 py-3 shadow-md sticky top-0 z-50">
+                <div class="flex items-center gap-8">
+                    <div class="flex items-center gap-3">
+                        <img src="{% static 'img/logoClubAlmacen.png' %}" alt="Logo de la Plataforma" class="h-24 w-auto"/>
+                    </div>
+                    <nav class="hidden md:flex gap-6 text-text-muted-light dark:text-text-muted-dark font-semibold text-sm">
+                        <a href="{% url 'plataforma_comerciante' %}" class="hover:text-primary transition-colors">Plataforma</a>
+                        <a href="{% url 'directorio' %}" class="hover:text-primary transition-colors">Proveedores</a> 
+                        <a href="{% url 'beneficios' %}" class="text-primary transition-colors">Beneficios</a>
+                        <a href="{% url 'redes_sociales' %}" class="hover:text-primary transition-colors">Redes Sociales</a>
+                        <a href="{% url 'crear_ticket_soporte' %}" class="hover:text-primary transition-colors flex items-center gap-1">
+                            <i class="bi bi-life-preserver"></i> Solicitar soporte
+                        </a>
+                    </nav>
+                </div>
+                <div class="flex justify-end gap-4 items-center">
+                    <button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-transparent text-text-muted-light dark:text-text-muted-dark hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <span class="material-symbols-outlined text-2xl">notifications</span>
+                    </button>
+                    
+                    <a href="{% url 'perfil' %}" class="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" 
+                            data-alt="Foto de {{ comerciante.nombre_apellido }}" 
+                            style='background-image: url("{{ comerciante.get_profile_picture_url }}");'>
+                        </div>
+                        
+                        <div class="flex flex-col text-left hidden sm:block">
+                            <p class="text-text-light dark:text-text-dark text-sm font-semibold leading-none">{{ comerciante.nombre_apellido|truncatewords:2 }}</p>
+                            <p class="text-text-muted-light dark:text-text-muted-dark text-xs leading-none mt-1">{{ rol_usuario }}</p>
+                        </div>
+                    </a>
+                </div>
+            </header>
+            
+            <!-- MAIN CONTENT -->
+            <main class="flex-1 w-full max-w-screen-xl mx-auto p-6 lg:p-8">
+                
+                <h1 class="text-3xl font-bold text-text-light dark:text-text-dark mb-2">Catálogo de Beneficios Exclusivos</h1>
+                <p class="text-text-muted-light dark:text-text-muted-dark text-lg mb-8">
+                    Descuentos, sorteos y acceso a capacitación para potenciar tu negocio.
+                </p>
+                
+                <h2 class="text-2xl font-bold text-text-light dark:text-text-dark mt-10 mb-6">Todos los Beneficios</h2>
+                
+                <form method="get" action="{% url 'beneficios' %}" id="filter-form" class="flex flex-wrap justify-start gap-4 mb-6">
+                    <select name="category" onchange="document.getElementById('filter-form').submit()" 
+                            class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-text-muted-light focus:ring-primary focus:border-primary">
+                        <option value="TODOS" {% if not current_category or current_category == 'TODOS' %}selected{% endif %}>
+                            Filtrar por Categoría
+                        </option>
+                        {% for key, value in CATEGORIAS %}
+                            <option value="{{ key }}" {% if key == current_category %}selected{% endif %}>
+                                {{ value }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    
+                    <select name="sort_by" onchange="document.getElementById('filter-form').submit()" 
+                            class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-text-muted-light focus:ring-primary focus:border-primary">
+                        <option value="-fecha_creacion" {% if current_sort == '-fecha_creacion' %}selected{% endif %}>Ordenar por: Más Nuevos</option>
+                        <option value="vence" {% if current_sort == 'vence' %}selected{% endif %}>Ordenar por: Vencimiento Próximo</option>
+                    </select>
+                </form>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    {% if no_beneficios_disponibles %}
+                        <div class="col-span-full bg-white dark:bg-white p-10 rounded-xl shadow-sm text-center">
+                            <span class="material-symbols-outlined text-6xl text-text-muted-light mb-4">info</span>
+                            <p class="text-lg font-semibold text-text-muted-light">¡Actualmente no hay beneficios disponibles en esta categoría!</p>
+                            <p class="text-sm text-text-muted-light mt-2">Vuelve pronto o ajusta tus filtros para explorar otras opciones.</p>
+                        </div>
+                    {% else %}
+                        {% for beneficio in beneficios %}
+                        <div class="bg-white dark:bg-white rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
+                            
+                            <div class="relative h-40">
+                                {% if beneficio.foto %}
+                                    <img src="{{ beneficio.foto.url }}" alt="Imagen del beneficio: {{ beneficio.titulo }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="w-full h-full flex items-center justify-center 
+                                                {% if beneficio.categoria == 'CAPACITACION' %}bg-placeholder-CAPACITACION{% elif beneficio.categoria == 'DESCUENTO' %}bg-placeholder-DESCUENTO{% elif beneficio.categoria == 'SORTEO' %}bg-placeholder-SORTEO{% elif beneficio.categoria == 'EVENTO' %}bg-placeholder-EVENTO{% else %}bg-placeholder-OTROS{% endif %}">
+                                        <span class="material-symbols-outlined placeholder-icon-benefit">
+                                            {% if beneficio.categoria == 'CAPACITACION' %}school{% elif beneficio.categoria == 'DESCUENTO' %}local_offer{% elif beneficio.categoria == 'SORTEO' %}emoji_events{% elif beneficio.categoria == 'EVENTO' %}event{% else %}redeem{% endif %}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                                <span class="absolute top-0 left-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-br-lg uppercase">
+                                    {{ beneficio.get_categoria_display }}
+                                </span>
+                            </div>
+                            
+                            <div class="p-4 flex-1 flex flex-col">
+                                <h3 class="text-lg font-bold text-text-light dark:text-text-dark mb-2">{{ beneficio.titulo }}</h3>
+                                <p class="text-text-muted-light text-sm mb-4 flex-grow">{{ beneficio.descripcion|truncatechars:100 }}</p>
+                                
+                                <div class="mt-auto pt-2 border-t border-gray-100 dark:border-gray-700">
+                                    {% if beneficio.vence %}
+                                        <p class="text-xs text-text-muted-light mb-3">Vence: <span class="font-semibold">{{ beneficio.vence|date:"d M Y" }}</span></p>
+                                    {% endif %}
+
+                                    {% if beneficio.estado == 'ACTIVO' %}
+                                        <button class="w-full px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 transition-colors">
+                                            Ver detalles y participar
+                                        </button>
+                                    {% elif beneficio.estado == 'BENEFICIO_ACTIVO' %}
+                                        <button class="w-full px-4 py-2 bg-green-500 text-white text-sm font-bold rounded-lg cursor-not-allowed">
+                                            Beneficio Reclamado
+                                        </button>
+                                    {% else %}
+                                        <button class="w-full px-4 py-2 bg-gray-400 text-white text-sm font-bold rounded-lg cursor-not-allowed">
+                                            Terminado
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                </div>
+                
+            </main>
+        </div>
+        
+        <footer class="text-center text-xs text-text-muted-light border-t border-gray-200 py-4 mt-10">
+            <p>Soporte | Preguntas Frecuentes | Términos de Servicio</p>
+            <p class="mt-1">© 2025 Club Almacén. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+</body>
+</html>
