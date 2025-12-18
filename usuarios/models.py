@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.templatetags.static import static
 from proveedor.models import Proveedor
+from django.contrib.auth.models import AbstractUser, BaseUserManager 
 
 # --- Opciones de Selección Múltiple ---
 
@@ -86,8 +87,33 @@ RUBROS_CHOICES = [
     ('VARIOS', 'Varios'),
 ]
 
+class ComercianteManager(BaseUserManager):
+    """Manager personalizado para el modelo Comerciante que usa email en lugar de username."""
+    
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('El email es obligatorio')
+        
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+    
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+        
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser debe tener is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser debe tener is_superuser=True.')
+        
+        return self.create_user(email, password, **extra_fields)
 
-class Comerciante(models.Model):
+
+class Comerciante(AbstractUser): 
     ROLES_CHOICES = [
         ('COMERCIANTE', 'Comerciante'),
         ('ADMIN', 'Administrador'),
@@ -95,11 +121,15 @@ class Comerciante(models.Model):
         ('TECNICO', 'Técnico de soporte'),
     ]
 
-    # Autenticación y contacto
-    nombre_apellido = models.CharField(max_length=100)
+    nombre_apellido = models.CharField(max_length=100, blank=True)
     email = models.EmailField(unique=True)
+    username = None 
+   
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['nombre_apellido']  # Campos requeridos además de email y password
+    objects = ComercianteManager() 
     password_hash = models.CharField(max_length=128)
-
+    
     rol = models.CharField(
         max_length=20,
         choices=ROLES_CHOICES,
@@ -119,14 +149,13 @@ class Comerciante(models.Model):
         help_text="Formato: +569XXXXXXXX"
     )
 
-    # Negocio
-    relacion_negocio = models.CharField(max_length=10, choices=RELACION_NEGOCIO_CHOICES)
-    tipo_negocio = models.CharField(max_length=20, choices=TIPO_NEGOCIO_CHOICES)
-    comuna = models.CharField(max_length=50)
+  
+    relacion_negocio = models.CharField(max_length=10, choices=RELACION_NEGOCIO_CHOICES, blank=True)
+    tipo_negocio = models.CharField(max_length=20, choices=TIPO_NEGOCIO_CHOICES, blank=True)
+    comuna = models.CharField(max_length=50, blank=True)
     nombre_negocio = models.CharField(max_length=100, default='Mi Negocio Local', blank=True)
 
-    # Auditoría
-    fecha_registro = models.DateTimeField(auto_now_add=True)
+    
     ultima_conexion = models.DateTimeField(default=timezone.now)
 
     # Perfil
@@ -142,8 +171,6 @@ class Comerciante(models.Model):
         blank=True,
         help_text="Códigos de intereses separados por coma."
     )
-
-    # ELIMINADO: puntos y nivel
     
     es_proveedor = models.BooleanField(default=False, verbose_name='Es Proveedor')
 

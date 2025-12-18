@@ -18,7 +18,7 @@ class ComercianteAdmin(admin.ModelAdmin):
         'comuna',
         'nombre_negocio',
         'es_proveedor',
-        'fecha_registro',
+        'date_joined',
         'ultima_conexion',
     )
     list_filter = (
@@ -29,7 +29,7 @@ class ComercianteAdmin(admin.ModelAdmin):
         'tipo_negocio',
     )
     search_fields = ('nombre_apellido', 'email', 'nombre_negocio', 'comuna')
-    readonly_fields = ('fecha_registro', 'ultima_conexion')
+    readonly_fields = ('date_joined', 'ultima_conexion')
 
 
 @admin.register(Post)

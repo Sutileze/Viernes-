@@ -303,13 +303,7 @@ class SocialSignupForm(SignupForm):
     )
     
     relacion_negocio = forms.ChoiceField(
-        choices=[
-            ('', 'Selecciona una opción'),
-            ('DUENO', 'Dueño/a'),
-            ('SOCIO', 'Socio/a'),
-            ('EMPLEADO', 'Empleado/a'),
-            ('FAMILIAR', 'Familiar'),
-        ],
+        choices=[('', 'Selecciona una opción')] + list(RELACION_NEGOCIO_CHOICES),
         required=True,
         widget=forms.Select(attrs={
             'class': 'w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-primary focus:outline-none appearance-none bg-white'
@@ -317,14 +311,7 @@ class SocialSignupForm(SignupForm):
     )
     
     tipo_negocio = forms.ChoiceField(
-        choices=[
-            ('', 'Selecciona un tipo'),
-            ('ALMACEN', 'Almacén'),
-            ('MINIMARKET', 'Minimarket'),
-            ('KIOSCO', 'Kiosco'),
-            ('BOTILLERIA', 'Botillería'),
-            ('OTRO', 'Otro'),
-        ],
+        choices=[('', 'Selecciona un tipo')] + list(TIPO_NEGOCIO_CHOICES),
         required=True,
         widget=forms.Select(attrs={
             'class': 'w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-primary focus:outline-none appearance-none bg-white'
@@ -332,16 +319,7 @@ class SocialSignupForm(SignupForm):
     )
     
     comuna_select = forms.ChoiceField(
-        choices=[
-            ('', 'Selecciona tu comuna'),
-            ('Santiago', 'Santiago'),
-            ('Las Condes', 'Las Condes'),
-            ('Providencia', 'Providencia'),
-            ('Maipú', 'Maipú'),
-            ('La Florida', 'La Florida'),
-            ('Puente Alto', 'Puente Alto'),
-            # Agregar más comunas
-        ],
+        choices=COMUNA_CHOICES,
         required=True,
         widget=forms.Select(attrs={
             'class': 'w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-primary focus:outline-none appearance-none bg-white'
@@ -349,18 +327,15 @@ class SocialSignupForm(SignupForm):
     )
 
     def save(self, request):
+        # ✅ Llama al save del padre que ya crea el usuario (Comerciante)
         user = super().save(request)
         
-        # Crear o actualizar el comerciante
-        comerciante, created = Comerciante.objects.get_or_create(
-            email=user.email,
-            defaults={
-                'nombre_apellido': self.cleaned_data['nombre_apellido'],
-                'whatsapp': self.cleaned_data['whatsapp'],
-                'relacion_negocio': self.cleaned_data['relacion_negocio'],
-                'tipo_negocio': self.cleaned_data['tipo_negocio'],
-                'comuna': self.cleaned_data['comuna_select'],
-            }
-        )
+        # ✅ El usuario YA ES un Comerciante, solo actualizamos sus campos
+        user.nombre_apellido = self.cleaned_data['nombre_apellido']
+        user.whatsapp = self.cleaned_data['whatsapp']
+        user.relacion_negocio = self.cleaned_data['relacion_negocio']
+        user.tipo_negocio = self.cleaned_data['tipo_negocio']
+        user.comuna = self.cleaned_data['comuna_select']
+        user.save()
         
         return user
